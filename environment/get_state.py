@@ -52,14 +52,14 @@ def read_file():
     metrics = []
     metrics[0] = metrics_list[2]
     metrics[1] = metrics_list[3]
-    metrics[2] = metrics_list[6]
-    metrics[3] = metrics_list[7]
-    metrics[4] = metrics_list[8]
-    metrics[5] = metrics_list[9]
-    metrics[6] = metrics_list[10]
-    metrics[7] = metrics_list[11]
-    metrics[8] = metrics_list[12]
-    metrics[9] = metrics_list[13]
+    # metrics[2] = metrics_list[6]
+    # metrics[3] = metrics_list[7]
+    # metrics[4] = metrics_list[8]
+    # metrics[5] = metrics_list[9]
+    # metrics[6] = metrics_list[10]
+    # metrics[7] = metrics_list[11]
+    # metrics[8] = metrics_list[12]
+    # metrics[9] = metrics_list[13]
     return metrics
 
 
