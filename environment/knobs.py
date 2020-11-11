@@ -1,4 +1,4 @@
-KNOB = ['client_oc_size',
+KNOBS = ['client_oc_size',
     'mds_beacon_grace',
     'mds_cache_size',
     'mds_early_reply',
@@ -381,4 +381,36 @@ def get_init_knobs():
     return knobs
 
 
+def get_continuous(action):
+    knobs = {}
+    for idx in xrange(len(KNOBS)):
+        name = KNOBS[idx]
+        value = KNOB_DETAILS[name]
+
+        knob_type = value[0]
+        knob_value = value[1]
+        min_value = knob_value[0]
+
+        if knob_type == 'OPT_INT' or knob_type == 'OPT_LONGLONG' or knob_type == 'OPT_U32' or knob_type == 'OPT_U64':
+            max_val = knob_value[1]
+            eval_value = int(max_val * action[idx])
+            # eval_value is the bigger one between min_value and (max_val * action[idx])
+            eval_value = max(eval_value, min_value)
+        elif knob_type == 'OPT_FLOAT' or knob_type == 'OPT_DOUBLE':
+            max_val = knob_value[1]
+            eval_value = max_val * action[idx]
+            # eval_value is the bigger one between min_value and (max_val * action[idx])
+            eval_value = max(eval_value, min_value)
+        elif knob_type == 'OPT_BOOL':
+            if action[idx] <= 0.5:
+                eval_value = True
+            else:
+                eval_value = False
+        elif knob_type == 'OPT_STR':
+            if action[idx] <= 0.5:
+                eval_value = 'posix_acl'
+            else:
+                eval_value = 'none'
+        knobs[name] = eval_value
+    return knobs
 
