@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import time
 import pickle
 import logging
@@ -18,14 +16,14 @@ def time_end(start):
 
 def get_timestamp():
     """
-    »ñÈ¡UNIXÊ±¼ä´Á
+    ï¿½ï¿½È¡UNIXÊ±ï¿½ï¿½ï¿½
     """
     return int(time.time())
 
 
 def time_to_str(timestamp):
     """
-    ½«Ê±¼ä´Á×ª»»³É[YYYY-MM-DD HH:mm:ss]¸ñÊ½
+    ï¿½ï¿½Ê±ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½[YYYY-MM-DD HH:mm:ss]ï¿½ï¿½Ê½
     """
     return datetime.datetime.\
         fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")

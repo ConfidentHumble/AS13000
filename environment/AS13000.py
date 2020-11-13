@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import gym
-import knobs
+import environment.knobs
 import os
 import sys
-import get_state
+import environment.get_state
 
-class AS13000(gym.Env):
+class AS13000():
     def __init__(self):
         self.score = 0.0
         self.steps = 0

@@ -14,7 +14,7 @@ from torch.nn import init, Parameter
 import torch.nn.functional as F
 import torch.optim as optimizer
 from torch.autograd import Variable
-from prioritized_replay_memory import PrioritizedReplayMemory
+from models.prioritized_replay_memory import PrioritizedReplayMemory
 
 
 # code from https://github.com/Kaixhin/NoisyNet-A3C/blob/master/model.py

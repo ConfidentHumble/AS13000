@@ -8,7 +8,8 @@ import sys
 import utils
 import pickle
 import argparse
-sys.path.append('../')
+sys.path.append("d:\\项目\\性能调优\\代码")
+# print(sys.path)
 import models
 import numpy as np
 import environment
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     # Create Environment
-    env = environment.Server(wk_type=opt.workload, instance_name=opt.instance)
+    env = environment.AS13000.Server(wk_type=opt.workload, instance_name=opt.instance)
 
     # Build models
     ddpg_opt = dict()
