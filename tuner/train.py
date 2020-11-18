@@ -13,6 +13,7 @@ sys.path.append("d:\\项目\\性能调优\\代码")
 import models
 import numpy as np
 import environment
+from environment.AS13000 import Server
 
 
 def generate_knob(action, method):
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--params', type=str, default='', help='Load existing parameters')
     parser.add_argument('--workload', type=str, default='read', help='Workload type [`read`, `write`, `readwrite`]')
-    parser.add_argument('--instance', type=str, default='mysql1', help='Choose MySQL Instance')
+    parser.add_argument('--instance', type=str, default='inspur01', help='Choose MySQL Instance')
     parser.add_argument('--method', type=str, default='ddpg', help='Choose Algorithm to solve [`ddpg`,`dqn`]')
     parser.add_argument('--memory', type=str, default='', help='add replay memory')
     parser.add_argument('--noisy', action='store_true', help='use noisy linear layer')
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     # Create Environment
-    env = environment.AS13000.Server(wk_type=opt.workload, instance_name=opt.instance)
+    env = Server(wk_type=opt.workload, instance_name=opt.instance)
 
     # Build models
     ddpg_opt = dict()
@@ -110,12 +111,12 @@ if __name__ == '__main__':
     # choose_action_time
     action_step_times = []
 
-    for episode in xrange(opt.epoches):
+    for episode in range(opt.epoches):
         current_state, initial_metrics = env.initialize()
-        logger.info("\n[Env initialized][Metric tps: {} lat: {} qps: {}]".format(
-            initial_metrics[0], initial_metrics[1], initial_metrics[2]))
-
-        model.reset(sigma)
+        logger.info("\n[Env initialized][Metric rate: {} resp: {}]".format(
+            initial_metrics[0], initial_metrics[1]))
+        ### TODO How to set the initial sigma
+        # model.reset(sigma)
         t = 0
         while True:
             step_time = utils.time_start()
@@ -150,7 +151,7 @@ if __name__ == '__main__':
             if len(model.replay_memory) > opt.batch_size:
                 losses = []
                 train_step_time = utils.time_start()
-                for i in xrange(2):
+                for i in range(2):
                     losses.append(model.update())
                     train_step += 1
                 train_step_time = utils.time_end(train_step_time)/2.0

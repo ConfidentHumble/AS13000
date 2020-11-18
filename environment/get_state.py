@@ -1,5 +1,3 @@
-# -*- coding:utf8 -*-
- 
 import os
 import sys
  
@@ -42,16 +40,16 @@ def read_file():
     return {*} Metrics
     '''
     lines = []
-    with open("totals.html", 'r') as f:
+    with open(".\environment\\totals.html", 'r') as f:
         lines = f.readlines()
-        size = len(lines)
-        for i in range(size):
-            print('%d %s'%(i, lines[i]))
+        # size = len(lines)
+        # for i in range(size):
+        #     print('%d %s'%(i, lines[i]))
         metrics_list = lines[17].split()
     # print(metrics_list)
     metrics = []
-    metrics[0] = metrics_list[2]
-    metrics[1] = metrics_list[3]
+    metrics.append(metrics_list[2])
+    metrics.append(metrics_list[3])
     # metrics[2] = metrics_list[6]
     # metrics[3] = metrics_list[7]
     # metrics[4] = metrics_list[8]
@@ -60,7 +58,8 @@ def read_file():
     # metrics[7] = metrics_list[11]
     # metrics[8] = metrics_list[12]
     # metrics[9] = metrics_list[13]
-    return metrics
+    # return metrics
+    return [float(metrics_list[2]), float(metrics_list[3])]
 
 
 if __name__ == '__main__':

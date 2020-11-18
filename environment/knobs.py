@@ -209,7 +209,7 @@ KNOB_DETAILS = { 'client_oc_size': ['OPT_U64', [4096.0, 4294967296.0, 2147483648
     'client_agg_filetier': ['OPT_BOOL', ['false', 'true', 0]],
     'client_agg_max_file_size': ['OPT_U64', [512.0, 4194304.0, 524288.0]],
     'client_agg_scan_interval': ['OPT_DOUBLE', [60.0, 7200.0, 3600.0]],
-    'client_aggfile_delete': ['OPT_INT', ['false', 'true', 0]],
+    'client_aggfile_delete': ['OPT_BOOL', ['false', 'true', 0]],
     'client_aggobj_flush_interval': ['OPT_U32', [1.0, 60.0, 5.0]],
     'client_aggregate_file_size': ['OPT_U64', [524288.0, 4294967296.0, 536870912.0]],
     'client_auto_drop_cap': ['OPT_BOOL', ['false', 'true', 1]],
@@ -383,7 +383,7 @@ def get_init_knobs():
 
 def gen_continuous(action):
     knobs = {}
-    for idx in xrange(len(KNOBS)):
+    for idx in range(len(KNOBS)):
         name = KNOBS[idx]
         value = KNOB_DETAILS[name]
 
@@ -413,4 +413,23 @@ def gen_continuous(action):
                 eval_value = 'none'
         knobs[name] = eval_value
     return knobs
+
+
+def save_knobs(knob, metrics, knob_file):
+    """ Save Knobs and their metrics to files
+    Args:
+        knob: dict, knob content
+        metrics: list, tps and latency
+        knob_file: str, file path
+    """
+    # format: tps, latency, knobstr: [#knobname=value#]
+    knob_strs = []
+    for kv in knob.items():
+        knob_strs.append('{}:{}'.format(kv[0], kv[1]))
+    result_str = '{},{},'.format(metrics[0], metrics[1])
+    knob_str = "#".join(knob_strs)
+    result_str += knob_str
+
+    with open(knob_file, 'a+') as f:
+        f.write(result_str+'\n')
 

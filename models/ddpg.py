@@ -284,7 +284,8 @@ class DDPG(object):
 
         self.replay_memory = PrioritizedReplayMemory(capacity=opt['memory_size'])
         # self.replay_memory = ReplayMemory(capacity=opt['memory_size'])
-        self.noise = OUProcess(n_actions)
+        # TODO: OUProcess function is what?
+        # self.noise = OUProcess(n_actions)
         print('DDPG Initialzed!')
 
     @staticmethod
@@ -417,11 +418,13 @@ class DDPG(object):
             x: np.array, current state
         """
         self.actor.eval()
-        act = self.actor(self.normalizer([x.tolist()])).squeeze(0)
+        # act = self.actor(self.normalizer([x.tolist()])).squeeze(0)
+        act = self.actor(self.normalizer([x])).squeeze(0)
         self.actor.train()
         action = act.data.numpy()
-        if self.ouprocess:
-            action += self.noise.noise()
+        ### TODO noise()函数
+        # if self.ouprocess:
+        #     action += self.noise.noise()
         return action.clip(0, 1)
 
     def sample_noise(self):
