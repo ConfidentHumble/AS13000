@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-import environment.knobs as knobs
 import os
 import sys
-import environment.get_state as get_state
-import environment.config as config
+import math
+import utils
+import knobs
+import config 
+import get_state
+from knobs import KNOBS, KNOB_DETAILS
 
 class AS13000(object):
     def __init__(self, wk_type='read', num_metric = 63, alpha = 1.0, beta1 = 0.5, beta2 = 0.5):
@@ -20,19 +23,20 @@ class AS13000(object):
         self.num_metric = num_metric
 
         
-    def apply_knobs(knob):
+    def apply_knobs(self, knob):
         '''
         description: Apply the knobs to the AS13000
         param {*}   knob
         return {*}
         '''        
-        f = open("/etc/icfs/icfs.conf", 'a')
-        for i in range(len(KNOB)):
-            name = KNOB[i]
+        # f = open("/etc/icfs/icfs.conf", 'a')
+        f = open("./environment/icfs.conf", 'a')
+        for i in range(len(KNOBS)):
+            name = KNOBS[i]
             value = knob[name]
             f.write(name)
             f.write(' = ')
-            f.write(value)
+            f.write(str(value))
             f.write('\n')
         f.close()
         cmd = 'systemctl restart icfs.target'
@@ -59,7 +63,7 @@ class AS13000(object):
         run_vdbench()
         self.default_metrics = read_file()
         self.last_metrics = self.default_metrics
-    def _calculate_reward(delta_0, delta_t):
+    def _calculate_reward(self, delta_0, delta_t):
         '''
             description: calculate the reward
             param {*} delta_0 = S(t) - S(0), delta_t = S(t) - S(t-1)
@@ -79,6 +83,7 @@ class AS13000(object):
         delta_0_ReqstdOps_rate = float((metrics[0] - self.default_metrics[0]))/self.default_metrics[0]
         delta_t_ReqstdOps_rate = float((metrics[0] - self.last_metrics[0]))/self.last_metrics[0]
         ReqstdOpa_rate = self._calculate_reward(delta_0_ReqstdOps_rate, delta_t_ReqstdOps_rate)
+        # print("metrics[0]:{}, default_metrics[0]:{}, rate_0:{}, rate_t:{}, rate:{}".format(metrics[0], self.default_metrics[0], delta_0_ReqstdOps_rate,delta_t_ReqstdOps_rate, ReqstdOpa_rate))
         # ReqstdOps_resp
         delta_0_ReqstdOps_resp = float((metrics[1] - self.default_metrics[1]))/self.default_metrics[1]
         delta_t_ReqstdOps_resp = float((metrics[1] - self.last_metrics[1]))/self.last_metrics[1]
@@ -113,13 +118,18 @@ class AS13000(object):
         # MbSec_write = self._calculate_reward(delta_0_MbSec_write, delta_t_MbSec_write)
 
         reward = 0.4 * ReqstdOpa_rate + 0.6 * ReqstdOpa_resp
+        # print("reward:::{}".format(reward))
         # + IOPS_read_rate *
         # + IOPS_read_resp *
         # + IOPS_write_rate *
         # + IOPS_write_resp *
+        return reward
         
     def terminate():
-        return self.terminate
+        if self.terminate:
+            return True
+        else:
+            return False
 
 
     def step(self, knob):
@@ -133,79 +143,12 @@ class AS13000(object):
         restart_time = utils.time_end(restart_time)
         self.state = self.get_state()
         metrics = self.state
+        # print("state:{}".format(self.state))
         reward = self.get_reward(self.state)
+        # print("reward::{}".format(reward))
         self.last_metrics = self.state
-        terminate = self.terminate()
+        terminate = self.terminate
         return reward, self.state, terminate, self.score, metrics, restart_time
 
-    
-class Server(AS13000):
-    """ Build an environment directly on Server
-    """
 
-    def __init__(self, wk_type, instance_name):
-        AS13000.__init__(self, wk_type)
-        self.wk_type = wk_type
-        self.score = 0.0
-        self.steps = 0
-        self.terminate = False
-        self.last_metrics = None
-        self.instance_name = instance_name
-        self.db_info = config.instance_config[instance_name]
-        self.server_ip = self.db_info['host']
-        self.alpha = 1.0
-        # knobs.init_knobs(instance_name, num_more_knobs=0)
-        self.default_knobs = knobs.get_init_knobs()
-
-    def initialize(self):
-        """ Initialize the environment when an episode starts
-        Returns:
-            state: np.array, current state
-        """
-        self.score = 0.0
-        self.last_metrics = []
-        self.steps = 0
-        self.terminate = False
-
-        flag = self._apply_knobs(self.default_knobs)
-        i = 0
-        while not flag:
-            flag = self._apply_knobs(self.default_knobs)
-            i += 1
-            if i >= 5:
-                print("Initialize: {} times ....".format(i))
-
-        metrics = self.get_state()
-        self.last_metrics = metrics
-        self.default_metrics = metrics
-        state = metrics
-        knobs.save_knobs(
-            self.default_knobs,
-            metrics=metrics,
-            knob_file='./tuner/knob_metric.txt'
-        )
-        return state, metrics
-
-    def _apply_knobs(self, knob):
-        '''
-        description: Apply the knobs to the AS13000
-        param {*}   knob
-        return {*}
-        '''        
-        # f = open("/etc/icfs/icfs.conf", 'a')
-        f = open("icfs.conf", 'a')
-        for i in range(len(knobs.KNOBS)):
-            name = knobs.KNOBS[i]
-            value = knob[name]
-            f.write(name)
-            f.write(' = ')
-            f.write(str(value))
-            f.write('\n')
-        f.close()
-        cmd = 'systemctl restart icfs.target'
-        os.system(cmd)
-        ### TODO: design the approach for restart failure
-        return True
-
-   
         

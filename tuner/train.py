@@ -8,12 +8,14 @@ import sys
 import utils
 import pickle
 import argparse
-sys.path.append("d:\\项目\\性能调优\\代码")
-# print(sys.path)
+sys.path.append('./')
+sys.path.append('./environment')
+sys.path.append('./models')
+print(sys.path)
 import models
 import numpy as np
 import environment
-from environment.AS13000 import Server
+from environment.Server import Server
 
 
 def generate_knob(action, method):
@@ -134,8 +136,8 @@ if __name__ == '__main__':
             reward, state_, done, score, metrics, restart_time = env.step(current_knob)
             env_step_time = utils.time_end(env_step_time)
             logger.info(
-                "\n[{}][Episode: {}][Step: {}][Metric tps:{} lat:{} qps:{}]Reward: {} Score: {} Done: {}".format(
-                    opt.method, episode, t, metrics[0], metrics[1], metrics[2], reward, score, done
+                "\n[{}][Episode: {}][Step: {}][Metric rate:{} resp:{}]Reward: {} Score: {} Done: {}".format(
+                    opt.method, episode, t, metrics[0], metrics[1], reward, score, done
                 ))
             env_restart_times.append(restart_time)
 

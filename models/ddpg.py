@@ -14,7 +14,7 @@ from torch.nn import init, Parameter
 import torch.nn.functional as F
 import torch.optim as optimizer
 from torch.autograd import Variable
-from models.prioritized_replay_memory import PrioritizedReplayMemory
+from prioritized_replay_memory import PrioritizedReplayMemory
 
 
 # code from https://github.com/Kaixhin/NoisyNet-A3C/blob/master/model.py
@@ -352,9 +352,9 @@ class DDPG(object):
         self.actor.eval()
         self.target_critic.eval()
         self.target_actor.eval()
-        batch_state = self.normalizer([state.tolist()])
-        batch_next_state = self.normalizer([next_state.tolist()])
-        current_value = self.critic(batch_state, self.totensor([action.tolist()]))
+        batch_state = self.normalizer([state])
+        batch_next_state = self.normalizer([next_state])
+        current_value = self.critic(batch_state, self.totensor([action]))
         target_action = self.target_actor(batch_next_state)
         target_value = self.totensor([reward]) \
             + self.totensor([0 if x else 1 for x in [terminate]]) \
