@@ -340,9 +340,11 @@ class DDPG(object):
     def _sample_batch(self):
         batch, idx = self.replay_memory.sample(self.batch_size)
         # batch = self.replay_memory.sample(self.batch_size)
-        states = map(lambda x: x[0].tolist(), batch)
-        next_states = map(lambda x: x[3].tolist(), batch)
-        actions = map(lambda x: x[1].tolist(), batch)
+        print("batch:{}\t batch_type:{}".format(batch, type(batch)))
+        
+        states = map(lambda x: x[0], batch)
+        next_states = map(lambda x: x[3], batch)
+        actions = map(lambda x: x[1], batch)
         rewards = map(lambda x: x[2], batch)
         terminates = map(lambda x: x[4], batch)
 
@@ -411,7 +413,7 @@ class DDPG(object):
         self._update_target(self.target_critic, self.critic, tau=self.tau)
         self._update_target(self.target_actor, self.actor, tau=self.tau)
 
-        return loss.data[0], policy_loss.data[0]
+        return loss.data, policy_loss.data
 
     def choose_action(self, x):
         """ Select Action according to the current state
