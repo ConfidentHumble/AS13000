@@ -42,23 +42,10 @@ def read_file():
     lines = []
     with open("/root/test_result/totals.html", 'r') as f:
         lines = f.readlines()
-        # size = len(lines)
-        # for i in range(size):
-        #     print('%d %s'%(i, lines[i]))
         metrics_list = lines[-1].split()
-    # print(metrics_list)
     metrics = []
     metrics.append(metrics_list[2])
     metrics.append(metrics_list[3])
-    # metrics[2] = metrics_list[6]
-    # metrics[3] = metrics_list[7]
-    # metrics[4] = metrics_list[8]
-    # metrics[5] = metrics_list[9]
-    # metrics[6] = metrics_list[10]
-    # metrics[7] = metrics_list[11]
-    # metrics[8] = metrics_list[12]
-    # metrics[9] = metrics_list[13]
-    # return metrics
     return [float(metrics_list[2]), float(metrics_list[3])]
 
 

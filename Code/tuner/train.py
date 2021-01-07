@@ -186,7 +186,7 @@ if __name__ == '__main__':
                         .format("ddpg", episode, t, np.mean(step_time), np.mean(env_step_time),
                                 np.mean(train_step_time), np.mean(restart_time), np.mean(action_step_times)))
             # update the step counter of current episode and global episode
-            t = t + 1
+            t += 1
             step_counter += 1
 
             # save replay memory
@@ -199,7 +199,7 @@ if __name__ == '__main__':
             if step_counter % 5 == 0:
                 model.save_model('model_params', title='{}_{}'.format(expr_name, step_counter))
 
-            if done or score < -50:
+            if done or step_counter > 10000:
                 break
 
 

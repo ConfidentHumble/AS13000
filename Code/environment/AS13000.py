@@ -1,7 +1,7 @@
 '''
 Author: your name
 Date: 2020-12-01 17:10:29
-LastEditTime: 2020-12-17 16:43:13
+LastEditTime: 2021-01-07 16:36:43
 LastEditors: Please set LastEditors
 Description: In User Settings Edit
 FilePath: \Code\environment\AS13000.py
@@ -13,14 +13,13 @@ import math
 import utils
 import knobs
 import config 
-import get_state
+import getMetrics
 from knobs import KNOBS, KNOB_DETAILS
 
 class AS13000(object):
     def __init__(self, wk_type='read', num_metric = 63, alpha = 1.0, beta1 = 0.5, beta2 = 0.5):
         self.score = 0.0
         self.steps = 0
-        self.terminate = False
         self.state = []
         self.last_metrics = None
         self.default_metrics = None
@@ -29,6 +28,7 @@ class AS13000(object):
         self.beta1 = beta1
         self.beta2 = beta2
         self.num_metric = num_metric
+        self.default_knobs = knobs.get_init_knobs()
 
     def initialize(self):
         """ Initialize the environment when an episode starts
@@ -38,19 +38,13 @@ class AS13000(object):
         self.score = 0.0
         self.last_metrics = []
         self.steps = 0
-        self.terminate = False
 
-        flag = self._apply_knobs(self.default_knobs)
-        i = 0
-        while not flag:
-            flag = self._apply_knobs(self.default_knobs)
-            i += 1
-            if i >= 5:
-                print("Initialize: {} times ....".format(i))
+        self.apply_knobs(self.default_knobs)
 
-        metrics = self.get_state()
+        metrics = self.get_metrics()
         self.last_metrics = metrics
         self.default_metrics = metrics
+        # TODO：state need to be changed
         state = metrics
         knobs.save_knobs(
             self.default_knobs,
@@ -66,42 +60,25 @@ class AS13000(object):
         param {*}   knob
         return {*}
         '''        
-        f = open("/etc/icfs/icfs.conf", 'w')
-        # f = open("./environment/icfs.conf", 'a')
-        default_contents = "[global]\nfsid = 2596257f-e7d4-4f01-9e92-096064579b23\npublic_network = 188.188.40.0/24\ncluster_network = 192.168.40.0/24\nmon_initial_members = inspur01, inspur02, inspur03\nmon_host = 188.188.40.211,188.188.40.212,188.188.40.213\nauth_cluster_required = none\nauth_service_required = none\nauth_client_required = none\nosd_pg_cache_flag = 1\nnode_mem_pg_cache_target_gigabytes = 1\nosd_pg_cache_ssd_count = 1\nosd crush update on start = false\n"
-        f.write(default_contents)
+        cmd = "icfs tell osd.* injectargs"
         for i in range(len(KNOBS)):
             name = KNOBS[i]
             value = knob[name]
-            f.write(name)
-            f.write(' = ')
-            f.write(str(value))
-            f.write('\n')
-        f.close()
-        cmd = 'systemctl restart icfs.target'
-        os.system(cmd)
+            cmd_apply = cmd + "  " + "--" + str(name) + "  " + str(value)
+            os.system(cmd_apply)
 
-    def get_state(self):
+
+    def get_metrics(self):
         '''
         description: run vdbench and get the state of system
         param {*}
         return {*} state
         '''
-        get_state.run_vdbench()
-        state = []
-        state = get_state.read_file()
-        return state
+        getMetrics.run_vdbench()
+        metrics = getMetrics.read_file()
+        return metrics
 
 
-    def get_default_metrics():
-        '''
-        description: run vdbench and get the initial state of system
-        param {*}
-        return {*} state
-        '''
-        run_vdbench()
-        self.default_metrics = read_file()
-        self.last_metrics = self.default_metrics
     def _calculate_reward(self, delta_0, delta_t):
         '''
             description: calculate the reward
@@ -133,7 +110,7 @@ class AS13000(object):
         return reward
         
     def terminate():
-        if self.terminate:
+        if reward > 100 or reward < 100:
             return True
         else:
             return False
@@ -148,14 +125,14 @@ class AS13000(object):
         apply_time = utils.time_start()
         self.apply_knobs(knob)
         apply_time = utils.time_end(restart_time)
-        self.state = self.get_state()
-        metrics = self.state
-        # print("state:{}".format(self.state))
-        reward = self.get_reward(self.state)
-        # print("reward::{}".format(reward))
-        self.last_metrics = self.state
-        terminate = self.terminate
-        return reward, self.state, terminate, self.score, metrics, apply_time
+
+        # TODO: state need to change
+        state = self.get_metrics()
+        metrics = self.get_metrics()
+        reward = self.get_reward(metrics)
+        next_state = state
+        terminate = self.terminate()
+        return reward, next_state, terminate, self.score, metrics, apply_time
 
 
         
