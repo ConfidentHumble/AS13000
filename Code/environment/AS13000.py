@@ -1,11 +1,3 @@
-'''
-Author: your name
-Date: 2020-12-01 17:10:29
-LastEditTime: 2021-01-07 16:36:43
-LastEditors: Please set LastEditors
-Description: In User Settings Edit
-FilePath: \Code\environment\AS13000.py
-'''
 # -*- coding: utf-8 -*-
 import os
 import sys
